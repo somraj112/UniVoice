@@ -7,7 +7,7 @@ import { PostStatus, PostPriority } from "../models/Post";
 
 const router = Router();
 
-// ─── GET /api/posts ────────────────────────────────────────────────────────
+// GET /api/posts 
 // Returns all posts. Supports ?category=&status= query filters.
 router.get("/", (req: Request, res: Response) => {
   try {
@@ -28,7 +28,7 @@ router.get("/", (req: Request, res: Response) => {
   }
 });
 
-// ─── GET /api/posts/:id ────────────────────────────────────────────────────
+// GET /api/posts/:id 
 router.get("/:id", (req: Request, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
@@ -40,7 +40,7 @@ router.get("/:id", (req: Request, res: Response) => {
   }
 });
 
-// ─── POST /api/posts ───────────────────────────────────────────────────────
+// POST /api/posts 
 // Protected: requires login (verifyToken middleware from Somraj)
 router.post(
   "/",
@@ -76,7 +76,7 @@ router.post(
     }
   }
 );
-// ─── PATCH /api/posts/:id ──────────────────────────────────────────────────
+// PATCH /api/posts/:id 
 router.patch("/:id", (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
@@ -88,7 +88,7 @@ router.patch("/:id", (req: Request, res: Response) => {
     res.status(status).json({ success: false, message: err.message });
   }
 });
-// ─── PATCH /api/posts/:id/status ─────────────────────────────────────────
+// PATCH /api/posts/:id/status
 router.patch("/:id/status", (req: Request, res: Response) => {
   try {
     const { status } = req.body;
@@ -102,7 +102,7 @@ router.patch("/:id/status", (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-// ─── POST /api/posts/:id/upvote ───────────────────────────────────────────
+// POST /api/posts/:id/upvote 
 router.post("/:id/upvote", (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
@@ -114,7 +114,7 @@ router.post("/:id/upvote", (req: Request, res: Response) => {
     res.status(status).json({ success: false, message: err.message });
   }
 });
-// ─── POST /api/posts/:id/downvote ─────────────────────────────────────────
+// POST /api/posts/:id/downvote 
 router.post("/:id/downvote", (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
@@ -126,7 +126,7 @@ router.post("/:id/downvote", (req: Request, res: Response) => {
     res.status(status).json({ success: false, message: err.message });
   }
 });
-// ─── DELETE /api/posts/:id ────────────────────────────────────────────────
+// DELETE /api/posts/:id 
 router.delete("/:id", (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;

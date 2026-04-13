@@ -13,14 +13,19 @@ export interface AdminStats {
 
 export class AdminService {
 
+  // ASSIGN POST 
+
   async assignPost(postId: string, staffId: string, adminId: string) {
     const admin = await authService.getUserById(adminId);
     if (admin.role !== "admin") {
       throw new Error("Only admins can assign posts");
     }
+    // Verify assignee exists
     await authService.getUserById(staffId);
     return postService.assignPost(postId, staffId);
   }
+
+  // CHANGE STATUS 
 
   async changePostStatus(postId: string, newStatus: PostStatus, adminId: string) {
     const admin = await authService.getUserById(adminId);
@@ -30,6 +35,8 @@ export class AdminService {
     return postService.changeStatus(postId, newStatus);
   }
 
+  // DELETE POST 
+
   async deletePost(postId: string, adminId: string): Promise<void> {
     const admin = await authService.getUserById(adminId);
     if (admin.role !== "admin") {
@@ -38,6 +45,8 @@ export class AdminService {
     await postService.deletePost(postId, adminId, true);
   }
 
+  // LIST ALL POSTS 
+
   async listAllPosts(filters?: { status?: PostStatus; category?: string }) {
     const query: Record<string, any> = {};
     if (filters?.status)   query.status   = filters.status;
@@ -45,9 +54,13 @@ export class AdminService {
     return PostModel.find(query).sort({ createdAt: -1 }).lean();
   }
 
+  // STATS 
+
   async getStats(): Promise<AdminStats> {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    // Run all DB queries in parallel for speed
     const [totalPosts, totalUsers, statusGroups, resolvedThisWeek] = await Promise.all([
       PostModel.countDocuments(),
       UserModel.countDocuments(),
