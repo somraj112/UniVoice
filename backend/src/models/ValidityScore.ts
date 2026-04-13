@@ -7,6 +7,7 @@ export interface IValidityScore extends Document {
   upvotes:      number;
   downvotes:    number;
   calculatedAt: Date;
+  recalculate(upvotes: number, downvotes: number): Promise<void>;
 }
 
 const ValidityScoreSchema = new Schema<IValidityScore>(

@@ -9,8 +9,6 @@ interface AddCommentDTO {
 }
 
 export class CommentService {
-
-  
   async addComment(dto: AddCommentDTO): Promise<IComment> {
     if (!dto.body.trim()) throw new Error("Comment body cannot be empty");
 
@@ -21,8 +19,6 @@ export class CommentService {
       isInternal:  dto.isInternal ?? false,
     });
   }
-
- 
 
   async getCommentsByPost(complaintId: string, includeInternal = false): Promise<IComment[]> {
     const query: Record<string, any> = {
@@ -38,8 +34,6 @@ export class CommentService {
     if (!comment) throw new Error(`Comment ${commentId} not found`);
     return comment;
   }
-
- 
 
   async editComment(commentId: string, newBody: string, requestingUserId: string): Promise<IComment> {
     const comment = await this.getCommentById(commentId);
@@ -57,8 +51,6 @@ export class CommentService {
     if (!updated) throw new Error(`Comment ${commentId} not found`);
     return updated;
   }
-
-  
 
   async deleteComment(commentId: string, requestingUserId: string, isAdmin: boolean): Promise<void> {
     const comment = await this.getCommentById(commentId);

@@ -1,17 +1,15 @@
 import { Router, Request, Response } from "express";
 import { postService } from "../services/PostService";
 import { PostStatus, PostPriority } from "../models/Post";
-
-// authMiddleware will be written by Somraj — imported here
 // import { verifyToken, requireRole } from "../middleware/authMiddleware";
 
 const router = Router();
 
 // GET /api/posts 
 // Returns all posts. Supports ?category=&status= query filters.
-router.get("/", (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
-    let posts = postService.getAllPosts();
+    let posts = await postService.getAllPosts();
 
     if (req.query.category) {
       posts = posts.filter(
@@ -29,11 +27,11 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 // GET /api/posts/:id 
-router.get("/:id", (req: Request, res: Response) => {
+router.get("/:id", async (req: Request, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const post = postService.getPostById(id);
-    const vs = postService.getValidityScore(id);
+    const post = await postService.getPostById(id);
+    const vs = await postService.getValidityScore(id);
     res.json({ success: true, data: { ...post.toJSON(), validityScoreData: vs?.toJSON() } });
   } catch (err: any) {
     res.status(404).json({ success: false, message: err.message });
@@ -45,7 +43,7 @@ router.get("/:id", (req: Request, res: Response) => {
 router.post(
   "/",
   // verifyToken,   // uncomment once Somraj adds authMiddleware
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { title, body, category, priority, tags, isAnonymous } = req.body;
 
@@ -60,7 +58,7 @@ router.post(
       // For now fallback to body.userId until middleware is ready
       const userId = (req as any).user?.userId ?? req.body.userId;
 
-      const post = postService.createPost({
+      const post = await postService.createPost({
         userId,
         title,
         body,
@@ -77,11 +75,11 @@ router.post(
   }
 );
 // PATCH /api/posts/:id 
-router.patch("/:id", (req: Request, res: Response) => {
+router.patch("/:id", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = postService.updatePost(id, req.body, userId);
+    const updated = await postService.updatePost(id, req.body, userId);
     res.json({ success: true, data: updated.toJSON() });
   } catch (err: any) {
     const status = err.message.includes("Unauthorized") ? 403 : 500;
@@ -89,25 +87,25 @@ router.patch("/:id", (req: Request, res: Response) => {
   }
 });
 // PATCH /api/posts/:id/status
-router.patch("/:id/status", (req: Request, res: Response) => {
+router.patch("/:id/status", async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
     if (!Object.values(PostStatus).includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid status value" });
     }
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const updated = postService.changeStatus(id, status as PostStatus);
+    const updated = await postService.changeStatus(id, status as PostStatus);
     res.json({ success: true, data: updated.toJSON() });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 // POST /api/posts/:id/upvote 
-router.post("/:id/upvote", (req: Request, res: Response) => {
+router.post("/:id/upvote", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = postService.upvote(id, userId);
+    const result = await postService.upvote(id, userId);
     res.json({ success: true, data: result });
   } catch (err: any) {
     const status = err.message.includes("already voted") ? 409 : 500;
@@ -115,11 +113,11 @@ router.post("/:id/upvote", (req: Request, res: Response) => {
   }
 });
 // POST /api/posts/:id/downvote 
-router.post("/:id/downvote", (req: Request, res: Response) => {
+router.post("/:id/downvote", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = postService.downvote(id, userId);
+    const result = await postService.downvote(id, userId);
     res.json({ success: true, data: result });
   } catch (err: any) {
     const status = err.message.includes("already voted") ? 409 : 500;
@@ -127,12 +125,12 @@ router.post("/:id/downvote", (req: Request, res: Response) => {
   }
 });
 // DELETE /api/posts/:id 
-router.delete("/:id", (req: Request, res: Response) => {
+router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId ?? req.body.userId;
     const isAdmin = (req as any).user?.role === "admin";
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    postService.deletePost(id, userId, isAdmin);
+    await postService.deletePost(id, userId, isAdmin);
     res.json({ success: true, message: "Post deleted" });
   } catch (err: any) {
     const status = err.message.includes("Unauthorized") ? 403 : 500;

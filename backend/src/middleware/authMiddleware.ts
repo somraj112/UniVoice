@@ -32,7 +32,7 @@ export function verifyToken(req: Request, res: Response, next: NextFunction): vo
   }
 }
 
-// requireRole 
+// requireRole
 // Use after verifyToken. Pass one or more allowed roles.
 // Example: router.patch("/status", verifyToken, requireRole("admin"), handler)
 export function requireRole(...roles: UserRole[]) {

@@ -52,7 +52,7 @@ router.post("/login", async (req: Request, res: Response) => {
       });
     }
 
-    const { user, token } = await authService.login({ email, password });
+    const { user, token } = await authService.login(email, password);
 
     res.json({
       success: true,
@@ -65,9 +65,9 @@ router.post("/login", async (req: Request, res: Response) => {
 
 // GET /api/auth/me 
 // Returns current logged-in user's profile
-router.get("/me", verifyToken, (req: Request, res: Response) => {
+router.get("/me", verifyToken, async (req: Request, res: Response) => {
   try {
-    const user = authService.getUserById(req.user!.userId);
+    const user = await authService.getUserById(req.user!.userId);
     res.json({ success: true, data: user.toSafeJSON() });
   } catch (err: any) {
     res.status(404).json({ success: false, message: err.message });

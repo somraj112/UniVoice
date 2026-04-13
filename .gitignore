@@ -6,3 +6,5 @@ node_modules
 .turbo
 .npm
 .yarn
+node_modules/
+backend/node_modules/

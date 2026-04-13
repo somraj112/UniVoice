@@ -80,7 +80,6 @@ UserSchema.methods.toSafeJSON = function () {
 };
 
 // Indexes 
-UserSchema.index({ email: 1 });
 UserSchema.index({ role: 1 });
 
 // Base Model 
